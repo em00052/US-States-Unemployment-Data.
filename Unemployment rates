@@ -1,0 +1,33 @@
+library(readr)
+library(tidyverse)
+#BarCharts
+state.data<-read.csv("us_state_economic_data_1980_2018.csv")
+collapsed.data<-group_by(state.data,state_name)%>%summarize(avg.rate=mean(Unemploymentrate))
+p1<-ggplot(data=collapsed.data,aes(x=state_name,y=avg.rate))+geom_col(color="blue",fill="white")+theme_classic()
+p2<-p1+theme(axis.text.x = element_text(angle=90))
+p3<-p2+labs(x="state",y="Average unemployment rate")
+install.packages("plotly")
+library(plotly)
+#Linegraphs
+us.unemployment.rate<-read.csv("US_unemployment_rate_1948_2021.csv")
+library(lubridate)
+us.unemployment.rate$DATE<-ymd(us.unemployment.rate$DATE)
+p5<-ggplot(data=us.unemployment.rate,aes(x=DATE,y=UNRATE))+geom_line(linetype="solid",color="red",linewidth=0.8)+theme_classic()
+library(scales)
+p6<-p5+scale_x_date(date_labels="%Y",date_breaks="1 years")
+install.packages("gganimate")
+install.packages("gifski")
+install.packages("png")
+###Animate.
+library(gganimate)
+library(gifski)
+library(png)
+
+p7<-p6+transition_reveal(DATE)
+anim_save("us_unemployment_rate.gif")
+
+state.data.2<-subset(state.data,state_name=="GA"|state_name=="NC"|state_name=="SC"|state_name=="FL"|state_name=="NC")
+
+p8<-ggplot(data=state.data.2,aes(x=year,y=Unemploymentrate,color=state_name))+ geom_line()+theme_classic()
+
+p9<-ggplot(data=state.data.2,aes(x=year,y=Unemploymentrate,color=state_name))+ geom_line()+theme_classic()+facet_wrap(~state_name)
